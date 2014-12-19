@@ -1,10 +1,10 @@
 #include <stdio.h>
 #include <SDL2/SDL.h>
 
-#define BLOCK_W 10
-#define BLOCK_H 10
-#define WIDTH 1
-#define HEIGHT 1
+#define BLOCK_W 32
+#define BLOCK_H 32
+#define WIDTH 10
+#define HEIGHT 10
 #define WIDTH_P BLOCK_W * WIDTH
 #define HEIGHT_P BLOCK_H * HEIGHT
 
@@ -12,7 +12,6 @@ enum block {STONE, GRASS, SKY};
 
 
 void memset32 (Uint32 *ptr, Uint32 fill, size_t size) {
-  printf("%a\n", ptr);
   while(size) {
     ptr[--size] = fill;
   }
@@ -51,13 +50,11 @@ void set_block (enum block *blocks, enum block block, int x, int y) {
 void blocks_to_pixels (enum block *blocks, Uint32 *pixels) {
   size_t size = WIDTH * HEIGHT;
   int dy;
-  printf("\n");
   while (size) {
     size--;
     Uint32 color = block_c(blocks[size]);
     for (dy = 0; dy < BLOCK_H; dy++) {
-      printf("%d\n", ((size/WIDTH)*WIDTH_P*BLOCK_H) + ((size%WIDTH)*BLOCK_W) + dy);
-      memset32(pixels + ((size/WIDTH)*WIDTH_P*BLOCK_H) + ((size%WIDTH)*BLOCK_W) + dy, color, BLOCK_W);
+      memset32(pixels + ((size/WIDTH)*WIDTH_P*BLOCK_H) + ((size%WIDTH)*BLOCK_W) + (dy*WIDTH_P), color, BLOCK_W);
     }
   }
 }
@@ -127,11 +124,11 @@ int main (int argc, char *argv) {
     SDL_UpdateTexture(texture, NULL, pixels, WIDTH_P * sizeof(Uint32));
     SDL_WaitEvent(&event);
 
-    // set_block(blocks, STONE, x++, y);
-    // if (x >= WIDTH) {
-    //   x = 0;
-    //   y++;
-    // }
+    set_block(blocks, STONE, x++, y);
+    if (x >= WIDTH) {
+      x = 0;
+      y++;
+    }
 
     switch (event.type) {
       case SDL_QUIT:
