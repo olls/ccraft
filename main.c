@@ -8,7 +8,12 @@
 #define WIDTH_P BLOCK_W * WIDTH
 #define HEIGHT_P BLOCK_H * HEIGHT
 
-enum block {STONE, GRASS, SKY};
+enum block {EMPTY, STONE, GRASS, PLAYER, SKY};
+
+struct coord {
+  int x;
+  int y;
+};
 
 
 void memset32 (Uint32 *ptr, Uint32 fill, size_t size) {
@@ -29,10 +34,12 @@ void clear (enum block *blocks, enum block fill) {
 Uint32 block_c (enum block block) {
   switch (block) {
     case STONE:
-      return 0xabcdef;
-      // return 0xCCCCCC;
+      // return 0xabcdef;
+      return 0xCCCCCC;
     case GRASS:
       return 0x00FF00;
+    case PLAYER:
+      return 0xDA9898;
     case SKY:
     default:
       return 0x0000FF;
@@ -40,19 +47,20 @@ Uint32 block_c (enum block block) {
 }
 
 
-void set_block (enum block *blocks, enum block block, int x, int y) {
-  if (x >= BLOCK_W || y >= HEIGHT) {
-    return;
-  }
-  blocks[y*WIDTH + x] = block;
-}
-
-void blocks_to_pixels (enum block *blocks, Uint32 *pixels) {
+void blocks_to_pixels (enum block *blocks, enum block * objects, Uint32 *pixels) {
   size_t size = WIDTH * HEIGHT;
   int dy;
+  Uint32 color;
+
   while (size) {
     size--;
-    Uint32 color = block_c(blocks[size]);
+
+    if (objects[size] != EMPTY) {
+      color = block_c(objects[size]);
+    } else {
+      color = block_c(blocks[size]);
+    }
+
     for (dy = 0; dy < BLOCK_H; dy++) {
       memset32(pixels + ((size/WIDTH)*WIDTH_P*BLOCK_H) + ((size%WIDTH)*BLOCK_W) + (dy*WIDTH_P), color, BLOCK_W);
     }
@@ -99,6 +107,43 @@ void move (enum block * blocks, int x, int dx) {
 }
 
 
+void set_block (enum block *blocks, enum block block, int x, int y) {
+  if (x >= BLOCK_W || y >= HEIGHT) {
+    return;
+  }
+  blocks[y*WIDTH + x] = block;
+}
+
+
+void place_objects(enum block * objects, struct coord player) {
+  clear(objects, EMPTY);
+  set_block(objects, PLAYER, player.x, player.y);
+}
+
+
+void set_scene(enum block * blocks) {
+  int x;
+
+  clear(blocks, SKY);
+
+  for (x = 0; x < WIDTH; x++) {
+    set_block(blocks, GRASS, x, HEIGHT-3);
+    set_block(blocks, STONE, x, HEIGHT-2);
+    set_block(blocks, STONE, x, HEIGHT-1);
+  }
+}
+
+
+void move_player(struct coord *player, SDL_KeyboardEvent key) {
+  if (key.keysym.sym == SDLK_RIGHT) {
+    player->x++;
+  }
+  if (key.keysym.sym == SDLK_LEFT) {
+    player->x--;
+  }
+}
+
+
 int main (int argc, char *argv) {
   int quit = 0;
   int x = 0;
@@ -115,22 +160,25 @@ int main (int argc, char *argv) {
     SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, WIDTH_P, HEIGHT_P);
 
   Uint32 *pixels = (Uint32 *)malloc(WIDTH_P * HEIGHT_P * sizeof(Uint32));
-  enum block *blocks = (Uint32 *)malloc(WIDTH_P * HEIGHT_P * sizeof(enum block));
+  enum block *blocks = (enum block *)malloc(WIDTH_P * HEIGHT_P * sizeof(enum block));
+  enum block *objects = (enum block *)malloc(WIDTH_P * HEIGHT_P * sizeof(enum block));
 
-  clear(blocks, SKY);
+  struct coord player = {WIDTH/2, HEIGHT-4};
+
+  set_scene(blocks);
 
   while (!quit) {
-    blocks_to_pixels(blocks, pixels);
+
+    place_objects(objects, player);
+    blocks_to_pixels(blocks, objects, pixels);
+
     SDL_UpdateTexture(texture, NULL, pixels, WIDTH_P * sizeof(Uint32));
     SDL_WaitEvent(&event);
 
-    set_block(blocks, STONE, x++, y);
-    if (x >= WIDTH) {
-      x = 0;
-      y++;
-    }
-
     switch (event.type) {
+      case SDL_KEYDOWN:
+        move_player(&player, event.key);
+        break;
       case SDL_QUIT:
         quit = 1;
         break;
