@@ -72,27 +72,27 @@ void load (pixels, slice, x) {
   //
 }
 
-void move (Uint32 * pixels, int x, int dx) {
+void move (enum block * blocks, int x, int dx) {
   int d = dx < 0 ? -1 : +1;
   int right_x, left_x;
-  Uint32 *right, *left;
+  enum block *right, *left;
 
   while (dx != 0) {
     x += d;
     dx += -d;
 
     left_x = x - (WIDTH/2);
-    left = pixels;
+    left = blocks;
     right_x = x + (WIDTH/2);
-    right = pixels + WIDTH_P;
+    right = blocks + WIDTH_P;
     if (d > 0) {
       save(left, left_x);
-      shift(pixels, d);
-      load(pixels, right, right_x);
+      shift(blocks, d);
+      load(blocks, right, right_x);
     } else {
       save(right, right_x);
-      shift(pixels, d);
-      load(pixels, left, left_x);
+      shift(blocks, d);
+      load(blocks, left, left_x);
     }
 
   }
@@ -142,6 +142,7 @@ int main (int argc, char *argv) {
   }
 
   free(pixels);
+  free(blocks);
   SDL_DestroyTexture(texture);
   SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(window);
