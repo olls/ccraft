@@ -1,10 +1,10 @@
 #include <stdio.h>
 #include <SDL2/SDL.h>
 
-#define BLOCK_W 32
-#define BLOCK_H 32
-#define WIDTH 10
-#define HEIGHT 10
+#define BLOCK_W 8
+#define BLOCK_H 8
+#define WIDTH 100
+#define HEIGHT 60
 #define WIDTH_P BLOCK_W * WIDTH
 #define HEIGHT_P BLOCK_H * HEIGHT
 
