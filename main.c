@@ -146,8 +146,6 @@ void move_player(struct coord *player, SDL_KeyboardEvent key) {
 
 int main (int argc, char *argv) {
   int quit = 0;
-  int x = 0;
-  int y = 0;
   SDL_Event event;
 
   SDL_Init(SDL_INIT_VIDEO);
