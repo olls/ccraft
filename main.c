@@ -68,43 +68,43 @@ void blocks_to_pixels (enum block *blocks, enum block * objects, Uint32 *pixels)
 }
 
 
-void shift (pixels, d) {
-  //
-}
+// void shift (pixels, d) {
+//   //
+// }
 
-void save (slice, x) {
-  //
-}
+// void save (slice, x) {
+//   //
+// }
 
-void load (pixels, slice, x) {
-  //
-}
+// void load (pixels, slice, x) {
+//   //
+// }
 
-void move (enum block * blocks, int x, int dx) {
-  int d = dx < 0 ? -1 : +1;
-  int right_x, left_x;
-  enum block *right, *left;
+// void move (enum block * blocks, int x, int dx) {
+//   int d = dx < 0 ? -1 : +1;
+//   int right_x, left_x;
+//   enum block *right, *left;
 
-  while (dx != 0) {
-    x += d;
-    dx += -d;
+//   while (dx != 0) {
+//     x += d;
+//     dx += -d;
 
-    left_x = x - (WIDTH/2);
-    left = blocks;
-    right_x = x + (WIDTH/2);
-    right = blocks + WIDTH_P;
-    if (d > 0) {
-      save(left, left_x);
-      shift(blocks, d);
-      load(blocks, right, right_x);
-    } else {
-      save(right, right_x);
-      shift(blocks, d);
-      load(blocks, left, left_x);
-    }
+//     left_x = x - (WIDTH/2);
+//     left = blocks;
+//     right_x = x + (WIDTH/2);
+//     right = blocks + WIDTH_P;
+//     if (d > 0) {
+//       save(left, left_x);
+//       shift(blocks, d);
+//       load(blocks, right, right_x);
+//     } else {
+//       save(right, right_x);
+//       shift(blocks, d);
+//       load(blocks, left, left_x);
+//     }
 
-  }
-}
+//   }
+// }
 
 
 void set_block (enum block *blocks, enum block block, int x, int y) {
