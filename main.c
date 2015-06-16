@@ -108,7 +108,7 @@ void move (enum block * blocks, int x, int dx) {
 
 
 void set_block (enum block *blocks, enum block block, int x, int y) {
-  if (x >= BLOCK_W || y >= HEIGHT) {
+  if (x >= WIDTH || y >= HEIGHT) {
     return;
   }
   blocks[y*WIDTH + x] = block;
