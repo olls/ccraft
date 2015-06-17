@@ -125,7 +125,7 @@ void place_objects(enum block * objects, struct coord player) {
 
 void set_scene(enum block * blocks) {
   int x, y;
-  int ground = HEIGHT - 3;
+  int ground = 2 * HEIGHT / 3;
 
   clear(blocks, SKY);
 
