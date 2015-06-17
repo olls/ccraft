@@ -147,12 +147,22 @@ void set_scene(enum block * blocks) {
 }
 
 
-void move_player(struct coord *player, SDL_KeyboardEvent key) {
-  if (key.keysym.sym == SDLK_RIGHT) {
-    player->x++;
+int xy(int x, int y) {
+  return y*WIDTH + x;
+}
+
+
+void move_player(struct coord *player, SDL_KeyboardEvent key, enum block * blocks) {
+  if (key.keysym.sym == SDLK_RIGHT && player->x < WIDTH-1) {
+    if (blocks[xy(player->y + 1, player->x)] == SKY &&
+        blocks[xy(player->y + 1, player->x + 1)] == SKY) {
+      player->x++;
+    }
   }
-  if (key.keysym.sym == SDLK_LEFT) {
-    player->x--;
+  if (key.keysym.sym == SDLK_LEFT && player->x > 0) {
+    if (blocks[player->y*WIDTH + player->x - 1] == SKY) {
+      player->x--;
+    }
   }
 }
 
@@ -190,7 +200,7 @@ int main (int argc, char *argv) {
 
     switch (event.type) {
       case SDL_KEYDOWN:
-        move_player(&player, event.key);
+        move_player(&player, event.key, blocks);
         break;
       case SDL_QUIT:
         quit = 1;
