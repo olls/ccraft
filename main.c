@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <time.h>
+#include <stdlib.h>
 #include <SDL2/SDL.h>
 
 #define BLOCK_W 8
@@ -122,14 +124,25 @@ void place_objects(enum block * objects, struct coord player) {
 
 
 void set_scene(enum block * blocks) {
-  int x;
+  int x, y;
+  int ground = HEIGHT - 3;
 
   clear(blocks, SKY);
 
   for (x = 0; x < WIDTH; x++) {
-    set_block(blocks, GRASS, x, HEIGHT-3);
-    set_block(blocks, STONE, x, HEIGHT-2);
-    set_block(blocks, STONE, x, HEIGHT-1);
+    if (ground == HEIGHT - 3) {
+      ground = ground - (rand()%2);
+    } else if (ground == 1) {
+      ground = ground + (rand()%2);
+    } else {
+      ground = ground - (1 - rand()%3);
+    }
+
+    set_block(blocks, GRASS, x, ground);
+
+    for (y = ground + 1; y < HEIGHT; y++) {
+      set_block(blocks, STONE, x, y);
+    }
   }
 }
 
@@ -147,6 +160,8 @@ void move_player(struct coord *player, SDL_KeyboardEvent key) {
 int main (int argc, char *argv) {
   int quit = 0;
   SDL_Event event;
+
+  srand(time(NULL));
 
   SDL_Init(SDL_INIT_VIDEO);
 
