@@ -148,21 +148,40 @@ void set_scene(enum block * blocks) {
 
 
 int xy(int x, int y) {
-  return y*WIDTH + x;
+  return (y * WIDTH) + x;
 }
 
 
 void move_player(struct coord *player, SDL_KeyboardEvent key, enum block * blocks) {
   if (key.keysym.sym == SDLK_RIGHT && player->x < WIDTH-1) {
-    if (blocks[xy(player->y + 1, player->x)] == SKY &&
-        blocks[xy(player->y + 1, player->x + 1)] == SKY) {
+    if (blocks[xy(player->x + 1, player->y)] == SKY) {
       player->x++;
+
+    } else if (player->y >= 0 &&
+               blocks[xy(player->x, player->y - 1)] == SKY &&
+               blocks[xy(player->x + 1, player->y - 1)] == SKY) {
+      player->x++;
+      player->y--;
+
     }
   }
   if (key.keysym.sym == SDLK_LEFT && player->x > 0) {
-    if (blocks[player->y*WIDTH + player->x - 1] == SKY) {
+    if (blocks[xy(player->x - 1, player->y)] == SKY) {
       player->x--;
+
+    } else if (player->y >= 0 &&
+               blocks[xy(player->x, player->y - 1)] == SKY &&
+               blocks[xy(player->x - 1, player->y - 1)] == SKY) {
+      player->x--;
+      player->y--;
+
     }
+  }
+}
+
+void gravity(struct coord *player, enum block * blocks) {
+  if (blocks[xy(player->x, player->y + 1)] == SKY) {
+    player->y++;
   }
 }
 
@@ -186,7 +205,7 @@ int main (int argc, char *argv) {
   enum block *blocks = (enum block *)malloc(WIDTH_P * HEIGHT_P * sizeof(enum block));
   enum block *objects = (enum block *)malloc(WIDTH_P * HEIGHT_P * sizeof(enum block));
 
-  struct coord player = {WIDTH/2, HEIGHT-4};
+  struct coord player = {WIDTH/2, 4};
 
   set_scene(blocks);
 
@@ -206,6 +225,8 @@ int main (int argc, char *argv) {
         quit = 1;
         break;
     }
+
+    gravity(&player, blocks);
 
     SDL_RenderClear(renderer);
     SDL_RenderCopy(renderer, texture, NULL, NULL);
