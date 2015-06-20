@@ -76,11 +76,16 @@ void blocks_to_pixels (enum block *blocks, enum block * objects, Uint32 *pixels)
 }
 
 
+int xy(int x, int y) {
+  return (y * WIDTH) + x;
+}
+
+
 void set_block (enum block *blocks, enum block block, int x, int y) {
   if (x >= WIDTH || y >= HEIGHT) {
     return;
   }
-  blocks[y*WIDTH + x] = block;
+  blocks[xy(x, y)] = block;
 }
 
 
@@ -111,11 +116,6 @@ void set_scene(enum block * blocks) {
       set_block(blocks, STONE, x, y);
     }
   }
-}
-
-
-int xy(int x, int y) {
-  return (y * WIDTH) + x;
 }
 
 
