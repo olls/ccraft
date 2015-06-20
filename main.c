@@ -52,11 +52,10 @@ Uint32 block_c (enum block block) {
 
 void blocks_to_pixels (enum block *blocks, enum block * objects, Uint32 *pixels) {
   size_t size = WIDTH * HEIGHT;
-  int dy;
+  int dy, rows_l, row_l;
   Uint32 color;
 
-  while (size) {
-    size--;
+  while (size--) {
 
     if (objects[size] != EMPTY) {
       color = block_c(objects[size]);
@@ -64,8 +63,14 @@ void blocks_to_pixels (enum block *blocks, enum block * objects, Uint32 *pixels)
       color = block_c(blocks[size]);
     }
 
+    // Number of pixels upto the current row
+    rows_l = ((size / WIDTH) * WIDTH_P * BLOCK_H);
+    // Number of pixels in row upto block
+    row_l = ((size % WIDTH) * BLOCK_W);
+
+    // Loop for every row of pixels in block height
     for (dy = 0; dy < BLOCK_H; dy++) {
-      memset32(pixels + ((size/WIDTH)*WIDTH_P*BLOCK_H) + ((size%WIDTH)*BLOCK_W) + (dy*WIDTH_P), color, BLOCK_W);
+      memset32(pixels + rows_l + row_l + (dy * WIDTH_P), color, BLOCK_W);
     }
   }
 }
