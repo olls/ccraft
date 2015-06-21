@@ -27,7 +27,7 @@ void memset32 (Uint32 *ptr, Uint32 fill, size_t size) {
 
 
 void clear (enum block *blocks, enum block fill) {
-  size_t size = WIDTH_P * HEIGHT_P;
+  size_t size = WIDTH * HEIGHT;
   while(size) {
     blocks[--size] = fill;
   }
@@ -172,9 +172,9 @@ int main (int argc, char *argv) {
   // The pixel values
   Uint32 *pixels = (Uint32 *)malloc(WIDTH_P * HEIGHT_P * sizeof(Uint32));
   // The blocks array
-  enum block *blocks = (enum block *)malloc(WIDTH_P * HEIGHT_P * sizeof(enum block));
+  enum block *blocks = (enum block *)malloc(WIDTH * HEIGHT * sizeof(enum block));
   // A second layer of blocks
-  enum block *objects = (enum block *)malloc(WIDTH_P * HEIGHT_P * sizeof(enum block));
+  enum block *objects = (enum block *)malloc(WIDTH * HEIGHT * sizeof(enum block));
 
   struct coord player = {WIDTH/2, 4};
 
