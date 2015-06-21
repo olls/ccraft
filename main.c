@@ -120,6 +120,12 @@ void set_scene(enum block * blocks) {
 
 
 void move_player(struct coord *player, SDL_KeyboardEvent key, enum block * blocks) {
+  if (key.keysym.sym == SDLK_UP && player->y > 1 &&
+      blocks[xy(player->x, player->y - 1)] == SKY &&
+      blocks[xy(player->x, player->y - 2)] == SKY &&
+      blocks[xy(player->x, player->y + 1)] != SKY) {
+    player->y -= 2;
+  }
   if (key.keysym.sym == SDLK_RIGHT && player->x < WIDTH-1) {
     if (blocks[xy(player->x + 1, player->y)] == SKY) {
       player->x++;
