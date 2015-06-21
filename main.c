@@ -102,11 +102,11 @@ void set_scene (enum block * blocks) {
 
   for (x = 0; x < WIDTH; x++) {
     if (ground == HEIGHT - 3) {
-      ground -= (rand()%2);
+      ground -= rand() % 2;
     } else if (ground == 1) {
-      ground += (rand()%2);
+      ground += rand() % 2;
     } else {
-      ground -= (1 - rand()%3);
+      ground -= 1 - rand() % 3;
     }
 
     set_block(blocks, GRASS, x, ground);
