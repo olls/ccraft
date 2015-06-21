@@ -5,11 +5,10 @@
 
 #define BLOCK_W 8
 #define BLOCK_H 8
-#define WIDTH 100
-#define HEIGHT 60
+#define WIDTH 75
+#define HEIGHT 50
 #define WIDTH_P BLOCK_W * WIDTH
 #define HEIGHT_P BLOCK_H * HEIGHT
-#define MOVE_RATE 1/30
 
 enum block {EMPTY, STONE, GRASS, PLAYER, SKY};
 
@@ -174,6 +173,9 @@ int main (int argc, char *argv) {
   SDL_Renderer * renderer = SDL_CreateRenderer(window, -1, 0);
   SDL_Texture * texture = SDL_CreateTexture(renderer,
     SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, WIDTH_P, HEIGHT_P);
+
+  // The world
+  // enum block *world = (enum block *)malloc(HEIGHT)
 
   // The pixel values
   Uint32 *pixels = (Uint32 *)malloc(WIDTH_P * HEIGHT_P * sizeof(Uint32));
