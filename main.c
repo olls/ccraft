@@ -63,9 +63,9 @@ void blocks_to_pixels (enum block *blocks, enum block * objects, Uint32 *pixels)
     }
 
     // Number of pixels upto the current row
-    rows_l = ((size / WIDTH) * WIDTH_P * BLOCK_H);
+    rows_l = (size / WIDTH) * WIDTH_P * BLOCK_H;
     // Number of pixels in row upto block
-    row_l = ((size % WIDTH) * BLOCK_W);
+    row_l = (size % WIDTH) * BLOCK_W;
 
     // Loop for every row of pixels in block height
     for (dy = 0; dy < BLOCK_H; dy++) {
@@ -134,7 +134,6 @@ void move_player (struct coord *player, SDL_KeyboardEvent key, enum block * bloc
                blocks[xy(player->x + 1, player->y - 1)] == SKY) {
       player->x++;
       player->y--;
-
     }
   }
   if (key.keysym.sym == SDLK_LEFT && player->x > 0) {
@@ -146,7 +145,6 @@ void move_player (struct coord *player, SDL_KeyboardEvent key, enum block * bloc
                blocks[xy(player->x - 1, player->y - 1)] == SKY) {
       player->x--;
       player->y--;
-
     }
   }
 }
