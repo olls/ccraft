@@ -88,13 +88,13 @@ void set_block (enum block *blocks, enum block block, int x, int y) {
 }
 
 
-void place_objects(enum block * objects, struct coord player) {
+void place_objects (enum block * objects, struct coord player) {
   clear(objects, EMPTY);
   set_block(objects, PLAYER, player.x, player.y);
 }
 
 
-void set_scene(enum block * blocks) {
+void set_scene (enum block * blocks) {
   int x, y;
   int ground = 2 * HEIGHT / 3;
 
@@ -118,7 +118,7 @@ void set_scene(enum block * blocks) {
 }
 
 
-void move_player(struct coord *player, SDL_KeyboardEvent key, enum block * blocks) {
+void move_player (struct coord *player, SDL_KeyboardEvent key, enum block * blocks) {
   if (key.keysym.sym == SDLK_UP && player->y > 1 &&
       blocks[xy(player->x, player->y - 1)] == SKY &&
       blocks[xy(player->x, player->y - 2)] == SKY &&
@@ -152,7 +152,7 @@ void move_player(struct coord *player, SDL_KeyboardEvent key, enum block * block
 }
 
 
-void gravity(struct coord *player, enum block * blocks) {
+void gravity (struct coord *player, enum block * blocks) {
   if (blocks[xy(player->x, player->y + 1)] == SKY) {
     player->y++;
   }
