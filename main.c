@@ -3,19 +3,14 @@
 #include <stdlib.h>
 #include <SDL2/SDL.h>
 
+#include "common.h"
+
 #define BLOCK_W 8
 #define BLOCK_H 8
 #define WIDTH 75
 #define HEIGHT 50
 #define WIDTH_P BLOCK_W * WIDTH
 #define HEIGHT_P BLOCK_H * HEIGHT
-
-enum block {EMPTY, STONE, GRASS, PLAYER, SKY};
-
-struct coord {
-  int x;
-  int y;
-};
 
 
 void memset32 (Uint32 *ptr, Uint32 fill, size_t size) {
@@ -25,15 +20,15 @@ void memset32 (Uint32 *ptr, Uint32 fill, size_t size) {
 }
 
 
-void clear (enum block *blocks, enum block fill) {
+void clear (blocks area, block fill) {
   size_t size = WIDTH * HEIGHT;
   while(size) {
-    blocks[--size] = fill;
+    area[--size] = fill;
   }
 }
 
 
-Uint32 block_c (enum block block) {
+Uint32 block_c (block block) {
   switch (block) {
     case STONE:
       // return 0xabcdef;
@@ -49,7 +44,7 @@ Uint32 block_c (enum block block) {
 }
 
 
-void blocks_to_pixels (enum block *blocks, enum block * objects, Uint32 *pixels) {
+void blocks_to_pixels (blocks scene, blocks objects, Uint32 *pixels) {
   size_t size = WIDTH * HEIGHT;
   int dy, rows_l, row_l;
   Uint32 color;
@@ -59,7 +54,7 @@ void blocks_to_pixels (enum block *blocks, enum block * objects, Uint32 *pixels)
     if (objects[size] != EMPTY) {
       color = block_c(objects[size]);
     } else {
-      color = block_c(blocks[size]);
+      color = block_c(scene[size]);
     }
 
     // Number of pixels upto the current row
@@ -80,25 +75,25 @@ int xy(int x, int y) {
 }
 
 
-void set_block (enum block *blocks, enum block block, int x, int y) {
+void set_block (blocks scene, block block, int x, int y) {
   if (x >= WIDTH || y >= HEIGHT) {
     return;
   }
-  blocks[xy(x, y)] = block;
+  scene[xy(x, y)] = block;
 }
 
 
-void place_objects (enum block * objects, struct coord player) {
+void place_objects (blocks objects, coord player) {
   clear(objects, EMPTY);
   set_block(objects, PLAYER, player.x, player.y);
 }
 
 
-void set_scene (enum block * blocks) {
+void setup_scene (blocks scene) {
   int x, y;
   int ground = 2 * HEIGHT / 3;
 
-  clear(blocks, SKY);
+  clear(scene, SKY);
 
   for (x = 0; x < WIDTH; x++) {
     if (ground == HEIGHT - 3) {
@@ -109,16 +104,16 @@ void set_scene (enum block * blocks) {
       ground -= 1 - rand() % 3;
     }
 
-    set_block(blocks, GRASS, x, ground);
+    set_block(scene, GRASS, x, ground);
 
     for (y = ground + 1; y < HEIGHT; y++) {
-      set_block(blocks, STONE, x, y);
+      set_block(scene, STONE, x, y);
     }
   }
 }
 
 
-void move_player (struct coord *player, SDL_KeyboardEvent key, enum block * blocks) {
+void move_player (coord *player, SDL_KeyboardEvent key, blocks blocks) {
   if (key.keysym.sym == SDLK_UP && player->y > 1 &&
       blocks[xy(player->x, player->y - 1)] == SKY &&
       blocks[xy(player->x, player->y - 2)] == SKY &&
@@ -150,7 +145,7 @@ void move_player (struct coord *player, SDL_KeyboardEvent key, enum block * bloc
 }
 
 
-void gravity (struct coord *player, enum block * blocks) {
+void gravity (coord *player, blocks blocks) {
   if (blocks[xy(player->x, player->y + 1)] == SKY) {
     player->y++;
   }
@@ -175,32 +170,32 @@ int main (int argc, char *argv) {
   // The pixel values
   Uint32 *pixels = (Uint32 *)malloc(WIDTH_P * HEIGHT_P * sizeof(Uint32));
   // The blocks array
-  enum block *blocks = (enum block *)malloc(WIDTH * HEIGHT * sizeof(enum block));
+  blocks scene = (blocks)malloc(WIDTH * HEIGHT * sizeof(block));
   // A second layer of blocks
-  enum block *objects = (enum block *)malloc(WIDTH * HEIGHT * sizeof(enum block));
+  blocks objects = (blocks)malloc(WIDTH * HEIGHT * sizeof(block));
 
   struct coord player = {WIDTH/2, 4};
 
-  set_scene(blocks);
+  setup_scene(scene);
 
   while (!quit) {
 
     place_objects(objects, player);
-    blocks_to_pixels(blocks, objects, pixels);
+    blocks_to_pixels(scene, objects, pixels);
 
     SDL_UpdateTexture(texture, NULL, pixels, WIDTH_P * sizeof(Uint32));
     SDL_PollEvent(&event);
 
     switch (event.type) {
       case SDL_KEYDOWN:
-        move_player(&player, event.key, blocks);
+        move_player(&player, event.key, scene);
         break;
       case SDL_QUIT:
         quit = 1;
         break;
     }
 
-    gravity(&player, blocks);
+    gravity(&player, scene);
 
     SDL_RenderClear(renderer);
     SDL_RenderCopy(renderer, texture, NULL, NULL);
@@ -208,7 +203,7 @@ int main (int argc, char *argv) {
   }
 
   free(pixels);
-  free(blocks);
+  free(scene);
   SDL_DestroyTexture(texture);
   SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(window);
