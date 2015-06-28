@@ -5,6 +5,8 @@ struct coord {
   int y;
 };
 
+
 typedef enum block block;
 typedef block *blocks;
+
 typedef struct coord coord;
