@@ -4,7 +4,7 @@
 
 
 void print_c (color *c) {
-  printf("rgb(%X, %X, %X)\n", c->r, c->g, c->b);
+  printf("rgb(%d, %d, %d)\n", c->r, c->g, c->b);
 }
 
 int take_c (color *c, FILE *fp) {
