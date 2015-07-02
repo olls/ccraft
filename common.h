@@ -1,20 +1,14 @@
-enum block {EMPTY, STONE, GRASS, PLAYER, SKY};
+typedef enum {EMPTY, STONE, GRASS, PLAYER, SKY} block;
 
-struct coord {
+typedef block *blocks;
+
+typedef struct {
   int x;
   int y;
-};
+} coord;
 
-struct color {
+typedef struct {
   int r;
   int g;
   int b;
-};
-
-
-
-typedef enum block block;
-typedef block *blocks;
-
-typedef struct coord coord;
-typedef struct color color;
+} color;
