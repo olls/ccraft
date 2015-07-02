@@ -9,7 +9,7 @@ void print_c (color *c) {
 
 int take_c (color *c, FILE *fp) {
 
-  char val[3];
+  unsigned char val[3];
   fgets(val, 4, fp);
 
   if (feof(fp)) {
