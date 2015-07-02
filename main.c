@@ -174,7 +174,7 @@ int main (int argc, char *argv) {
   // A second layer of blocks
   blocks objects = (blocks)malloc(WIDTH * HEIGHT * sizeof(block));
 
-  struct coord player = {WIDTH/2, 4};
+  coord player = {WIDTH/2, 4};
 
   setup_scene(scene);
 
