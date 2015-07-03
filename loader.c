@@ -24,6 +24,7 @@ texture load_b (char data[]) {
 
     tex[i++] = c;
   }
+  return tex;
 }
 
 
