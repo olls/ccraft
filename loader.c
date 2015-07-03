@@ -5,11 +5,6 @@
 #include "textures.h"
 
 
-void print_c (color *c) {
-  printf("rgb(%d, %d, %d)\n", c->r, c->g, c->b);
-}
-
-
 texture load_b (char data[]) {
   color c;
   texture tex = (texture)malloc(BLOCK_W * BLOCK_H * sizeof(color));
@@ -31,6 +26,8 @@ texture load_b (char data[]) {
 int main (int argc, char *argv) {
 
   texture block_tex = load_b(r_block_tex);
+
+  print_c(block_tex);
 
   return 0;
 }
