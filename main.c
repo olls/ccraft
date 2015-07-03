@@ -5,8 +5,6 @@
 
 #include "common.h"
 
-#define BLOCK_W 8
-#define BLOCK_H 8
 #define WIDTH 75
 #define HEIGHT 50
 #define WIDTH_P BLOCK_W * WIDTH

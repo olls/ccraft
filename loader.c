@@ -1,49 +1,35 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "common.h"
+#include "textures.h"
 
 
 void print_c (color *c) {
   printf("rgb(%d, %d, %d)\n", c->r, c->g, c->b);
 }
 
-int take_c (color *c, FILE *fp) {
 
-  unsigned char val[3];
-  fgets(val, 4, fp);
-
-  if (feof(fp)) {
-    // Not enough characters left
-    return 0;
-  }
-
-  c->r = val[0];
-  c->g = val[1];
-  c->b = val[2];
-
-  return 1;
-}
-
-
-blocks load (char *name) {
-  FILE *fp = fopen(name, "r");
-  if (fp == NULL) {
-    printf("Error: Cannot open file: '%s'\n", name);
-    return;
-  }
-
+texture load_b (char data[]) {
   color c;
-  while (take_c(&c, fp)) {
-    print_c(&c);
-  }
+  texture tex = (texture)malloc(BLOCK_W * BLOCK_H * sizeof(color));
+  size_t size = BLOCK_W * BLOCK_H;
+  int i = 0;
 
-  fclose(fp);
+  while (i <= size) {
+    c.r = (((data[0] - 33) << 2) | ((data[1] - 33) >> 4));
+    c.g = ((((data[1] - 33) & 0xF) << 4) | ((data[2] - 33) >> 2));
+    c.b = ((((data[2] - 33) & 0x3) << 6) | ((data[3] - 33)));
+    data += 4;
+
+    tex[i++] = c;
+  }
 }
 
 
 int main (int argc, char *argv) {
 
-  blocks scene = load("test");
+  texture block_tex = load_b(r_block_tex);
 
   return 0;
 }
