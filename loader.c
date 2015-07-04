@@ -5,6 +5,13 @@
 #include "textures.h"
 
 
+void print_tex (texture tex) {
+  for (int i = 0; i < BLOCK_W * BLOCK_H; i++) {
+    print_c_hex((tex+i));
+  }
+}
+
+
 texture load_b (char data[]) {
   texture tex = (texture)malloc(BLOCK_W * BLOCK_H * sizeof(color));
   color c;
@@ -24,7 +31,7 @@ texture load_b (char data[]) {
 int main (int argc, char *argv) {
 
   texture block_tex = load_b(r_block_tex);
-  print_c(block_tex);
+  print_tex(block_tex);
 
   return 0;
 }
