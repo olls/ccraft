@@ -26,7 +26,6 @@ texture load_b (char data[]) {
 int main (int argc, char *argv) {
 
   texture block_tex = load_b(r_block_tex);
-
   print_c(block_tex);
 
   return 0;
