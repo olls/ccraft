@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <SDL2/SDL.h>
 
-#include "common.h"
+#include "util/common.h"
 
 #define WIDTH 75
 #define HEIGHT 50
@@ -155,7 +155,6 @@ int main (int argc, char *argv) {
   SDL_Event event;
 
   srand(time(NULL));
-
   SDL_Init(SDL_INIT_VIDEO);
 
   SDL_Window * window = SDL_CreateWindow("CCraft",
@@ -176,6 +175,7 @@ int main (int argc, char *argv) {
 
   setup_scene(scene);
 
+  printf("Starting\n");
   while (!quit) {
 
     place_objects(objects, player);
@@ -190,6 +190,7 @@ int main (int argc, char *argv) {
         break;
       case SDL_QUIT:
         quit = 1;
+        error("Quitting");
         break;
     }
 
