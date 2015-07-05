@@ -1,2 +1,2 @@
 all:
-	gcc main.c -lSDL2 && ./a.out
+	gcc main.c util/common.c -std=c11 -lSDL2 -g && timeout -m 200000 ./a.out
