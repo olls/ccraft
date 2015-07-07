@@ -17,7 +17,6 @@ int get_quote (FILE *fp, char **content) {
     c = fgetc(fp);
     n++;
     if (c == EOF) {
-      error("Cannot match brackets");
       return -1;
     }
   }
@@ -39,28 +38,41 @@ int get_quote (FILE *fp, char **content) {
   return n;
 }
 
-int main(int argc, char *argv[]) {
 
   FILE *fp = fopen(argv[1], "r");
 
+int main (int argc, char *argv[]) {
+
+  FILE *fp = fopen(argv[1], "r");
   if (fp == NULL) {
     error("Cannot open file");
     return 1;
   }
 
-  int n;
-
   // Move to beginning of char array
-  char data[13];
-  while (strcmp(data, "*header_data")) {
-    n = fscanf(fp, "%12s", data);
+  char word[13];
+  while (strcmp(word, "*header_data")) {
+    if (fscanf(fp, "%12s", word) <= 0) {
+      error("Cannot find data");
+      return 1;
+    }
   }
-  printf("Found: '%s'\n", data);
 
-  n = get_quote(fp);
-  printf("%d\n", n);
-  n = get_quote(fp);
-  printf("%d\n", n);
+  char *part;
+  char data[256];
+  int n = 0,
+      i = 0;
+  while (n != -1) {
+    // Move to first quote
+    get_quote(fp, &part);
+
+    n = get_quote(fp, &part);
+    if (n > 0) {
+      strcpy(data + (i * 64), unslash_slashes(part));
+    }
+
+    i++;
+  }
 
   fclose(fp);
   return 0;
