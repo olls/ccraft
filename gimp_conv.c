@@ -4,9 +4,14 @@
 
 #include "util/common.h"
 
-int get_quote (FILE *fp, char *content) {
+
+int get_quote (FILE *fp, char **content) {
   char c = 0;
   int n = 0;
+  fpos_t pos;
+
+  // Save position
+  fgetpos(fp, &pos);
 
   while (c != '\"') {
     c = fgetc(fp);
@@ -17,9 +22,19 @@ int get_quote (FILE *fp, char *content) {
     }
   }
 
-  n--; // Account for final "
-  content = (char *)malloc(sizeof(char) * n);
-  strcpy
+  // Move back to start
+  fsetpos(fp, &pos);
+
+  // Offset to just before "
+  n--;
+
+  *content = (char *)malloc(sizeof(char) * (n + 1)); // Extra for \0
+
+  fread(*content, 1, n, fp);
+  (*content)[n] = '\0';
+
+  // Move fp to after "
+  fgetc(fp);
 
   return n;
 }
