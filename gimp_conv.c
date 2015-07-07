@@ -39,7 +39,29 @@ int get_quote (FILE *fp, char **content) {
 }
 
 
-  FILE *fp = fopen(argv[1], "r");
+char *unslash_slashes (char *str) {
+
+  size_t len = strlen(str);
+  char *new = (char *)malloc(sizeof(char) * len);
+
+  char *new_pt = new;
+  char *old_pt = str;
+
+  char prev = 0;
+
+  while (*old_pt != 0) {
+    if (!(*old_pt == '\\' && prev == '\\')) {
+      *new_pt = *old_pt;
+      new_pt++;
+    }
+
+    prev = *old_pt++;
+  }
+  *new_pt = '\0';
+
+  return new;
+}
+
 
 int main (int argc, char *argv[]) {
 
