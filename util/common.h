@@ -3,6 +3,8 @@
 
 
 #define print_c(c) {printf("rgb(%d, %d, %d)\n", c->r, c->g, c->b);}
+#define print_c_hex(c) {printf("%%%X%X%X,", c->r, c->g, c->b);}
+
 
 
 typedef enum {EMPTY, STONE, GRASS, PLAYER, SKY} block;
