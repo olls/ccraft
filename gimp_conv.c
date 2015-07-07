@@ -97,5 +97,28 @@ int main (int argc, char *argv[]) {
   }
 
   fclose(fp);
+
+  // Cut out '_gimp' from filename
+  int len = strlen(argv[1]);
+  int g_len = strlen("_gimp");
+  char *new_filename = (char *)malloc(sizeof(argv[1]) * (len - g_len));
+  strcpy(new_filename, argv[1]);
+  strcpy(new_filename + len - g_len - 2, ".h\0");
+
+  printf("Outputting to '%s'\n", new_filename);
+
+  // Write result
+  FILE *fp_ = fopen(new_filename, "w");
+  if (fp_ == NULL) {
+    error("Cannot open file");
+    return 1;
+  }
+
+  fprintf(fp_, "static char *block = \"%s\";\n", data);
+
+  if (part != NULL) {
+    free(part);
+  }
+
   return 0;
 }
