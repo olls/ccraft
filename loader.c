@@ -12,7 +12,9 @@ void print_tex (texture tex) {
 }
 
 
-texture load_b (char data[]) {
+texture
+load_b(char data[])
+{
   texture tex = (texture)malloc(BLOCK_W * BLOCK_H * sizeof(color));
   color c;
 
@@ -28,10 +30,12 @@ texture load_b (char data[]) {
 }
 
 
-int main (int argc, char *argv) {
+int
+main(int argc, char *argv)
+{
 
   texture block_tex = load_b(r_block_tex);
   print_tex(block_tex);
 
-  return 0;
+  return 0
 }
