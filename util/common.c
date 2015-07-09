@@ -4,7 +4,9 @@
 #include <string.h>
 
 
-void error (char *msg, ...) {
+void
+error(char * msg, ...)
+{
   char buf[256];
 
   va_list aptr;
