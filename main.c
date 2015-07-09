@@ -158,9 +158,11 @@ move_player(coord * player, SDL_KeyboardEvent key, blocks blocks)
     if (blocks[xy(player->x + 1, player->y)] == SKY)
     {
       player->x++;
-    } else if (player->y >= 0 &&
-               blocks[xy(player->x, player->y - 1)] == SKY &&
-               blocks[xy(player->x + 1, player->y - 1)] == SKY) {
+    }
+    else if (player->y >= 0 &&
+             blocks[xy(player->x, player->y - 1)] == SKY &&
+             blocks[xy(player->x + 1, player->y - 1)] == SKY)
+    {
       player->x++;
       player->y--;
     }
