@@ -251,6 +251,7 @@ main(int argc, char * argv)
   free(pixels);
   free(scene);
   free(objects);
+
   SDL_DestroyTexture(texture);
   SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(window);
