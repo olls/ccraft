@@ -11,7 +11,7 @@ load_raw(char filename[])
 {
   FILE * fp = fopen(filename, "r");
   if (fp == NULL) {
-    error("Cannot open texture file");
+    error("Cannot open texture file: \"%s\"", filename);
     return NULL;
   }
 
