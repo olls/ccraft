@@ -5,10 +5,10 @@
 #include "textures.h"
 
 
-struct color *
+color_t *
 load_b(char data[])
 {
-  struct color * tex = (struct color *)malloc(BLOCK_W * BLOCK_H * sizeof(struct color));
+  color_t * tex = (color_t *)malloc(BLOCK_W * BLOCK_H * sizeof(color_t));
 
   for (int i = 0; i < BLOCK_W * BLOCK_H; i++)
   {
