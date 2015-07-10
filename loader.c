@@ -5,16 +5,6 @@
 #include "textures.h"
 
 
-void
-print_tex(struct color * tex)
-{
-  for (int i = 0; i < BLOCK_W * BLOCK_H; i++)
-  {
-    print_c_hex((tex + i));
-  }
-}
-
-
 struct color *
 load_b(char data[])
 {
