@@ -5,7 +5,6 @@
 
 #include "util/common.h"
 #include "loader.h"
-#include "textures.h"
 
 
 #define WIDTH 75
@@ -21,27 +20,6 @@ clear(block_t area[], block_t fill)
   while(size)
   {
     area[--size] = fill;
-  }
-}
-
-
-uint32_t
-get_color(color_t * c)
-{
-  //       AARRGGBB
-  return 0x00000000 |
-         c->r << 16 |
-         c->g << 8  |
-         c->b << 0;
-}
-
-
-void
-get_texture_row(color_t * texture, int y, uint32_t output[])
-{
-  for (int dx = 0; dx < BLOCK_W; dx++)
-  {
-    output[dx] = get_color(texture + ( y * BLOCK_W ) + dx);
   }
 }
 
@@ -68,20 +46,15 @@ draw_blocks(
       current = scene[i];
     }
 
-    // Number of pixels up to the current row
-    int rows_l = (i / WIDTH) * WIDTH_P * BLOCK_H;
-
-    // Number of pixels in row up to block
-    int row_l = (i % WIDTH) * BLOCK_W;
-
+    int block_pos = ((i / WIDTH) * WIDTH_P * BLOCK_H) +  // Number of pixels up to the current row
+                    ((i % WIDTH) * BLOCK_W);  // Number of pixels in row up to block
 
     // Loop for every row of pixels in block height
     for (int dy = 0; dy < BLOCK_H; dy++)
     {
-      uint32_t * row_pos = pixels + rows_l + row_l + (dy * WIDTH_P);
-
-      get_texture_row(textures[current], dy, row_pos);
-
+      memcpy(pixels + block_pos + (dy * WIDTH_P),
+             textures[current] + (dy * BLOCK_W),
+             BLOCK_W * sizeof(uint32_t));
     }
   }
 }
@@ -214,7 +187,7 @@ main(int argc, char * argv)
 
   SDL_Renderer * renderer = SDL_CreateRenderer(window, -1, 0);
   SDL_Texture * texture = SDL_CreateTexture(renderer,
-    SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, WIDTH_P, HEIGHT_P);
+    SDL_PIXELFORMAT_ABGR8888, SDL_TEXTUREACCESS_STATIC, WIDTH_P, HEIGHT_P);
 
   // The pixel values
   uint32_t * pixels = (uint32_t *)malloc(WIDTH_P * HEIGHT_P * sizeof(uint32_t));
@@ -231,10 +204,10 @@ main(int argc, char * argv)
   // Allocate array of pointers to textures
   color_t ** textures = (color_t **)malloc(NUM_BLOCKS * sizeof(color_t *));
 
-  textures[STONE]  = load_b(stone_d);
-  textures[GRASS]  = load_b(grass_d);
-  textures[PLAYER] = load_b(player_d);
-  textures[SKY]    = load_b(sky_d);
+  textures[STONE]  = load_raw("img/stone");
+  textures[GRASS]  = load_raw("img/grass");
+  textures[PLAYER] = load_raw("img/player");
+  textures[SKY]    = load_raw("img/sky");
 
 
   printf("Starting\n");

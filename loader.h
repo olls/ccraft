@@ -1,3 +1,3 @@
 
 color_t *
-load_b(char data[]);
+load_raw(char filename[]);

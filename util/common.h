@@ -23,11 +23,7 @@ typedef struct coord {
   int y;
 } coord_t;
 
-typedef struct color {
-  uint8_t r;
-  uint8_t g;
-  uint8_t b;
-} color_t;
+typedef uint32_t color_t;
 
 
 void
