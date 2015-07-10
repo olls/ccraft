@@ -176,8 +176,20 @@ gravity(coord_t * player, block_t blocks[])
 int
 main(int argc, char * argv)
 {
-  int quit = 0;
-  SDL_Event event;
+  // Allocate array of pointers to textures
+  color_t ** textures = (color_t **)malloc(NUM_BLOCKS * sizeof(color_t *));
+
+  textures[STONE]  = load_raw("img/stone");
+  textures[GRASS]  = load_raw("img/grass");
+  textures[PLAYER] = load_raw("img/player");
+  textures[SKY]    = load_raw("img/sky");
+
+  if (!textures[STONE] ||
+      !textures[GRASS] ||
+      !textures[PLAYER] ||
+      !textures[SKY]) {
+    return 1;
+  }
 
   srand(time(NULL));
   SDL_Init(SDL_INIT_VIDEO);
@@ -200,18 +212,10 @@ main(int argc, char * argv)
 
   setup_scene(scene);
 
-
-  // Allocate array of pointers to textures
-  color_t ** textures = (color_t **)malloc(NUM_BLOCKS * sizeof(color_t *));
-
-  textures[STONE]  = load_raw("img/stone");
-  textures[GRASS]  = load_raw("img/grass");
-  textures[PLAYER] = load_raw("img/player");
-  textures[SKY]    = load_raw("img/sky");
-
-
   printf("Starting\n");
 
+  int quit = 0;
+  SDL_Event event;
   while (!quit)
   {
     place_objects(objects, player);
