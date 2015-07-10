@@ -15,17 +15,7 @@
 
 
 void
-memset32(Uint32 * ptr, Uint32 fill, size_t size)
-{
-  while(size)
-  {
-    ptr[--size] = fill;
-  }
-}
-
-
-void
-clear(enum block area[], enum block fill)
+clear(block_t area[], block_t fill)
 {
   size_t size = WIDTH * HEIGHT;
   while(size)
@@ -36,7 +26,7 @@ clear(enum block area[], enum block fill)
 
 
 Uint32
-get_color(struct color * c)
+get_color(color_t * c)
 {
   //       AARRGGBB
   return 0x00000000 |
@@ -47,7 +37,7 @@ get_color(struct color * c)
 
 
 void
-get_texture_row(struct color * texture, int y, Uint32 output[])
+get_texture_row(color_t * texture, int y, Uint32 output[])
 {
   for (int dx = 0; dx < BLOCK_W; dx++)
   {
@@ -58,9 +48,9 @@ get_texture_row(struct color * texture, int y, Uint32 output[])
 
 void
 draw_blocks(
-  struct color * textures[],  // List of pointers to textures.
-  enum block scene[],
-  enum block objects[],
+  color_t * textures[],  // List of pointers to textures.
+  block_t scene[],
+  block_t objects[],
   Uint32 * pixels  // Output buffer
 ) {
 
@@ -70,7 +60,7 @@ draw_blocks(
        i++)
   {
 
-    enum block current;
+    block_t current;
     if (objects[i] != EMPTY)
     {
       current = objects[i];
@@ -92,7 +82,7 @@ draw_blocks(
     {
       Uint32 * row_pos = pixels + rows_l + row_l + (dy * WIDTH_P);
 
-      get_texture_row((struct color *)textures[current], dy, row_pos);
+      get_texture_row((color_t *)textures[current], dy, row_pos);
 
     }
   }
@@ -107,7 +97,7 @@ xy(int x, int y)
 
 
 void
-set_block(enum block scene[], enum block block, int x, int y)
+set_block(block_t scene[], block_t block, int x, int y)
 {
   if (x >= WIDTH || y >= HEIGHT)
   {
@@ -118,7 +108,7 @@ set_block(enum block scene[], enum block block, int x, int y)
 
 
 void
-place_objects(enum block objects[], struct coord player)
+place_objects(block_t objects[], coord_t player)
 {
   clear(objects, EMPTY);
   set_block(objects, PLAYER, player.x, player.y);
@@ -126,7 +116,7 @@ place_objects(enum block objects[], struct coord player)
 
 
 void
-setup_scene(enum block scene[])
+setup_scene(block_t scene[])
 {
   int x, y;
   int ground = 2 * HEIGHT / 3;
@@ -159,7 +149,7 @@ setup_scene(enum block scene[])
 
 
 void
-move_player(struct coord * player, SDL_KeyboardEvent key, enum block blocks[])
+move_player(coord_t * player, SDL_KeyboardEvent key, block_t blocks[])
 {
   if (key.keysym.sym == SDLK_UP && player->y > 1 &&
       blocks[xy(player->x, player->y - 1)] == SKY &&
@@ -203,7 +193,7 @@ move_player(struct coord * player, SDL_KeyboardEvent key, enum block blocks[])
 
 
 void
-gravity(struct coord * player, enum block blocks[])
+gravity(coord_t * player, block_t blocks[])
 {
   if (blocks[xy(player->x, player->y + 1)] == SKY)
   {
@@ -231,17 +221,17 @@ main(int argc, char * argv)
   // The pixel values
   Uint32 * pixels = (Uint32 *)malloc(WIDTH_P * HEIGHT_P * sizeof(Uint32));
   // The blocks array
-  enum block * scene = (enum block *)malloc(WIDTH * HEIGHT * sizeof(enum block));
+  block_t * scene = (block_t *)malloc(WIDTH * HEIGHT * sizeof(block_t));
   // A second layer of blocks
-  enum block * objects = (enum block *)malloc(WIDTH * HEIGHT * sizeof(enum block));
+  block_t * objects = (block_t *)malloc(WIDTH * HEIGHT * sizeof(block_t));
 
-  struct coord player = {WIDTH / 2, 4};
+  coord_t player = {WIDTH / 2, 4};
 
   setup_scene(scene);
 
 
   // Allocate array of pointers to textures
-  struct color ** textures = (struct color **)malloc(NUM_BLOCKS * sizeof(void *));
+  color_t ** textures = (color_t **)malloc(NUM_BLOCKS * sizeof(void *));
 
   textures[STONE]  = load_b(stone_d);
   textures[GRASS]  = load_b(grass_d);
