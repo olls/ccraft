@@ -25,7 +25,7 @@ clear(block_t area[], block_t fill)
 }
 
 
-Uint32
+uint32_t
 get_color(color_t * c)
 {
   //       AARRGGBB
@@ -37,7 +37,7 @@ get_color(color_t * c)
 
 
 void
-get_texture_row(color_t * texture, int y, Uint32 output[])
+get_texture_row(color_t * texture, int y, uint32_t output[])
 {
   for (int dx = 0; dx < BLOCK_W; dx++)
   {
@@ -78,7 +78,7 @@ draw_blocks(
     // Loop for every row of pixels in block height
     for (int dy = 0; dy < BLOCK_H; dy++)
     {
-      Uint32 * row_pos = pixels + rows_l + row_l + (dy * WIDTH_P);
+      uint32_t * row_pos = pixels + rows_l + row_l + (dy * WIDTH_P);
 
       get_texture_row(textures[current], dy, row_pos);
 
@@ -217,7 +217,7 @@ main(int argc, char * argv)
     SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, WIDTH_P, HEIGHT_P);
 
   // The pixel values
-  Uint32 * pixels = (Uint32 *)malloc(WIDTH_P * HEIGHT_P * sizeof(Uint32));
+  uint32_t * pixels = (uint32_t *)malloc(WIDTH_P * HEIGHT_P * sizeof(uint32_t));
   // The blocks array
   block_t * scene = (block_t *)malloc(WIDTH * HEIGHT * sizeof(block_t));
   // A second layer of blocks
@@ -244,7 +244,7 @@ main(int argc, char * argv)
     place_objects(objects, player);
     draw_blocks(textures, scene, objects, pixels);
 
-    SDL_UpdateTexture(texture, NULL, pixels, WIDTH_P * sizeof(Uint32));
+    SDL_UpdateTexture(texture, NULL, pixels, WIDTH_P * sizeof(uint32_t));
     SDL_PollEvent(&event);
 
     switch (event.type)

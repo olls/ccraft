@@ -1,3 +1,5 @@
+#include <stdint.h>
+
 #define BLOCK_W 8
 #define BLOCK_H 8
 
@@ -22,9 +24,9 @@ typedef struct coord {
 } coord_t;
 
 typedef struct color {
-  int r;
-  int g;
-  int b;
+  uint8_t r;
+  uint8_t g;
+  uint8_t b;
 } color_t;
 
 
