@@ -4,6 +4,9 @@
 #include <SDL2/SDL.h>
 
 #include "util/common.h"
+#include "loader.h"
+#include "textures.h"
+
 
 #define WIDTH 75
 #define HEIGHT 50
@@ -22,7 +25,7 @@ memset32(Uint32 * ptr, Uint32 fill, size_t size)
 
 
 void
-clear(blocks area, block fill)
+clear(enum block area[], enum block fill)
 {
   size_t size = WIDTH * HEIGHT;
   while(size)
@@ -33,51 +36,64 @@ clear(blocks area, block fill)
 
 
 Uint32
-block_c(block block)
+get_color(struct color * c)
 {
-  switch (block)
+  //       AARRGGBB
+  return 0x00000000 |
+         c->r << 16 |
+         c->g << 8  |
+         c->b << 0;
+}
+
+
+void
+get_texture_row(struct color * texture, int y, Uint32 output[])
+{
+  for (int dx = 0; dx < BLOCK_W; dx++)
   {
-    case STONE:
-      return 0xCCCCCC;
-    case GRASS:
-      return 0x00FF00;
-    case PLAYER:
-      return 0xDA9898;
-    case SKY:
-    default:
-      return 0x0000FF;
+    output[dx] = get_color(texture + ( y * BLOCK_W ) + dx);
   }
 }
 
 
 void
-blocks_to_pixels(blocks scene, blocks objects, Uint32 * pixels)
-{
-  size_t size = WIDTH * HEIGHT;
-  int dy, rows_l, row_l;
-  Uint32 color;
+draw_blocks(
+  struct color * textures[],  // List of pointers to textures.
+  enum block scene[],
+  enum block objects[],
+  Uint32 * pixels  // Output buffer
+) {
 
-  while (size--)
+  // Loop through all blocks
+  for (size_t i = 0;
+       i < WIDTH * HEIGHT;
+       i++)
   {
 
-    if (objects[size] != EMPTY)
+    enum block current;
+    if (objects[i] != EMPTY)
     {
-      color = block_c(objects[size]);
+      current = objects[i];
     }
     else
     {
-      color = block_c(scene[size]);
+      current = scene[i];
     }
 
-    // Number of pixels upto the current row
-    rows_l = (size / WIDTH) * WIDTH_P * BLOCK_H;
-    // Number of pixels in row upto block
-    row_l = (size % WIDTH) * BLOCK_W;
+    // Number of pixels up to the current row
+    int rows_l = (i / WIDTH) * WIDTH_P * BLOCK_H;
+
+    // Number of pixels in row up to block
+    int row_l = (i % WIDTH) * BLOCK_W;
+
 
     // Loop for every row of pixels in block height
-    for (dy = 0; dy < BLOCK_H; dy++)
+    for (int dy = 0; dy < BLOCK_H; dy++)
     {
-      memset32(pixels + rows_l + row_l + (dy * WIDTH_P), color, BLOCK_W);
+      Uint32 * row_pos = pixels + rows_l + row_l + (dy * WIDTH_P);
+
+      get_texture_row((struct color *)textures[current], dy, row_pos);
+
     }
   }
 }
@@ -91,7 +107,7 @@ xy(int x, int y)
 
 
 void
-set_block(blocks scene, block block, int x, int y)
+set_block(enum block scene[], enum block block, int x, int y)
 {
   if (x >= WIDTH || y >= HEIGHT)
   {
@@ -102,7 +118,7 @@ set_block(blocks scene, block block, int x, int y)
 
 
 void
-place_objects(blocks objects, coord player)
+place_objects(enum block objects[], struct coord player)
 {
   clear(objects, EMPTY);
   set_block(objects, PLAYER, player.x, player.y);
@@ -110,7 +126,7 @@ place_objects(blocks objects, coord player)
 
 
 void
-setup_scene(blocks scene)
+setup_scene(enum block scene[])
 {
   int x, y;
   int ground = 2 * HEIGHT / 3;
@@ -143,7 +159,7 @@ setup_scene(blocks scene)
 
 
 void
-move_player(coord * player, SDL_KeyboardEvent key, blocks blocks)
+move_player(struct coord * player, SDL_KeyboardEvent key, enum block blocks[])
 {
   if (key.keysym.sym == SDLK_UP && player->y > 1 &&
       blocks[xy(player->x, player->y - 1)] == SKY &&
@@ -187,7 +203,7 @@ move_player(coord * player, SDL_KeyboardEvent key, blocks blocks)
 
 
 void
-gravity(coord * player, blocks blocks)
+gravity(struct coord * player, enum block blocks[])
 {
   if (blocks[xy(player->x, player->y + 1)] == SKY)
   {
@@ -215,19 +231,30 @@ main(int argc, char * argv)
   // The pixel values
   Uint32 * pixels = (Uint32 *)malloc(WIDTH_P * HEIGHT_P * sizeof(Uint32));
   // The blocks array
-  blocks scene = (blocks)malloc(WIDTH * HEIGHT * sizeof(block));
+  enum block * scene = (enum block *)malloc(WIDTH * HEIGHT * sizeof(enum block));
   // A second layer of blocks
-  blocks objects = (blocks)malloc(WIDTH * HEIGHT * sizeof(block));
+  enum block * objects = (enum block *)malloc(WIDTH * HEIGHT * sizeof(enum block));
 
-  coord player = {WIDTH / 2, 4};
+  struct coord player = {WIDTH / 2, 4};
 
   setup_scene(scene);
 
+
+  // Allocate array of pointers to textures
+  struct color ** textures = (struct color **)malloc(NUM_BLOCKS * sizeof(void *));
+
+  textures[STONE]  = load_b(stone_d);
+  textures[GRASS]  = load_b(grass_d);
+  textures[PLAYER] = load_b(player_d);
+  textures[SKY]    = load_b(sky_d);
+
+
   printf("Starting\n");
+
   while (!quit)
   {
     place_objects(objects, player);
-    blocks_to_pixels(scene, objects, pixels);
+    draw_blocks(textures, scene, objects, pixels);
 
     SDL_UpdateTexture(texture, NULL, pixels, WIDTH_P * sizeof(Uint32));
     SDL_PollEvent(&event);
@@ -253,11 +280,14 @@ main(int argc, char * argv)
   free(pixels);
   free(scene);
   free(objects);
+  free(textures); // TODO(olls): free individual textures
 
   SDL_DestroyTexture(texture);
   SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(window);
   SDL_Quit();
+
+  printf("Finished\n");
 
   return 0;
 }

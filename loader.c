@@ -1,12 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "common.h"
+#include "util/common.h"
 #include "textures.h"
 
 
 void
-print_tex(texture tex)
+print_tex(struct color * tex)
 {
   for (int i = 0; i < BLOCK_W * BLOCK_H; i++)
   {
@@ -15,31 +15,19 @@ print_tex(texture tex)
 }
 
 
-texture
+struct color *
 load_b(char data[])
 {
-  texture tex = (texture)malloc(BLOCK_W * BLOCK_H * sizeof(color));
-  color c;
+  struct color * tex = (struct color *)malloc(BLOCK_W * BLOCK_H * sizeof(struct color));
 
   for (int i = 0; i < BLOCK_W * BLOCK_H; i++)
   {
-    c.r = (((data[0] - 33) << 2) | ((data[1] - 33) >> 4));
-    c.g = ((((data[1] - 33) & 0xF) << 4) | ((data[2] - 33) >> 2));
-    c.b = ((((data[2] - 33) & 0x3) << 6) | ((data[3] - 33)));
+    tex[i].r = (((data[0] - 33) << 2) | ((data[1] - 33) >> 4));
+    tex[i].g = ((((data[1] - 33) & 0xF) << 4) | ((data[2] - 33) >> 2));
+    tex[i].b = ((((data[2] - 33) & 0x3) << 6) | ((data[3] - 33)));
+
     data += 4;
-
-    tex[i] = c;
   }
+
   return tex;
-}
-
-
-int
-main(int argc, char * argv)
-{
-
-  texture block_tex = load_b(r_block_tex);
-  print_tex(block_tex);
-
-  return 0
 }

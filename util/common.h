@@ -6,22 +6,31 @@
 #define print_c_hex(c) {printf("%%%X%X%X,", c->r, c->g, c->b);}
 
 
+enum block {
+  EMPTY,
+  STONE,
+  GRASS,
+  PLAYER,
+  SKY,
+  NUM_BLOCKS
+};
 
-typedef enum {EMPTY, STONE, GRASS, PLAYER, SKY} block;
+struct texture {
+  enum block type;
+  struct color * pixels;
+};
 
-typedef block *blocks;
-
-typedef struct {
+struct coord {
   int x;
   int y;
-} coord;
+};
 
-typedef struct {
+struct color {
   int r;
   int g;
   int b;
-} color;
+};
 
-typedef color *texture;
 
-void error (char *mgs, ...);
+void
+error(char * mgs, ...);
