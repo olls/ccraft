@@ -51,13 +51,11 @@ draw_blocks(
   color_t * textures[],  // List of pointers to textures.
   block_t scene[],
   block_t objects[],
-  Uint32 * pixels  // Output buffer
+  uint32_t * pixels  // Output buffer
 ) {
 
   // Loop through all blocks
-  for (size_t i = 0;
-       i < WIDTH * HEIGHT;
-       i++)
+  for (size_t i = 0; i < WIDTH * HEIGHT; i++)
   {
 
     block_t current;
@@ -82,7 +80,7 @@ draw_blocks(
     {
       Uint32 * row_pos = pixels + rows_l + row_l + (dy * WIDTH_P);
 
-      get_texture_row((color_t *)textures[current], dy, row_pos);
+      get_texture_row(textures[current], dy, row_pos);
 
     }
   }
