@@ -173,21 +173,41 @@ gravity(coord_t * player, block_t blocks[])
 }
 
 
-int
-main(int argc, char * argv)
+void
+free_textures(color_t ** textures)
+{
+  free(textures[STONE]);
+  free(textures[GRASS]);
+  free(textures[PLAYER]);
+  free(textures[SKY]);
+
+  free(textures);
+}
+
+
+color_t **
+load_textures()
 {
   // Allocate array of pointers to textures
   color_t ** textures = (color_t **)malloc(NUM_BLOCKS * sizeof(color_t *));
 
-  textures[STONE]  = load_raw("img/stone");
-  textures[GRASS]  = load_raw("img/grass");
-  textures[PLAYER] = load_raw("img/player");
-  textures[SKY]    = load_raw("img/sky");
+  if (!(textures[STONE]  = load_raw("img/stone")) ||
+      !(textures[GRASS]  = load_raw("img/grass")) ||
+      !(textures[PLAYER] = load_raw("img/player")) ||
+      !(textures[SKY]    = load_raw("img/sky"))) {
 
-  if (!textures[STONE] ||
-      !textures[GRASS] ||
-      !textures[PLAYER] ||
-      !textures[SKY]) {
+    free_textures(textures);
+    return NULL;
+  }
+  return textures;
+}
+
+
+int
+main(int argc, char * argv)
+{
+  color_t ** textures = load_textures();
+  if (!textures) {
     return 1;
   }
 
@@ -245,7 +265,7 @@ main(int argc, char * argv)
   free(pixels);
   free(scene);
   free(objects);
-  free(textures); // TODO(olls): free individual textures
+  free_textures(textures);
 
   SDL_DestroyTexture(texture);
   SDL_DestroyRenderer(renderer);
