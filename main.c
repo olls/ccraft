@@ -231,7 +231,7 @@ main(int argc, char * argv)
 
 
   // Allocate array of pointers to textures
-  color_t ** textures = (color_t **)malloc(NUM_BLOCKS * sizeof(void *));
+  color_t ** textures = (color_t **)malloc(NUM_BLOCKS * sizeof(color_t *));
 
   textures[STONE]  = load_b(stone_d);
   textures[GRASS]  = load_b(grass_d);
