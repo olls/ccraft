@@ -3,6 +3,8 @@
 #define BLOCK_W 8
 #define BLOCK_H 8
 
+#define LIST_PART_LENGTH 64
+
 
 typedef enum block
 {
@@ -14,10 +16,8 @@ typedef enum block
   NUM_BLOCKS
 } block_t;
 
-typedef struct texture
-{
-  struct color * pixels;
-} texture_t;
+
+typedef uint32_t color_t;
 
 typedef struct coord
 {
@@ -25,7 +25,13 @@ typedef struct coord
   int y;
 } coord_t;
 
-typedef uint32_t color_t;
+typedef struct object
+{
+  color_t * texture;
+  int width;
+  int height;
+  coord_t pos;
+} object_t;
 
 
 void

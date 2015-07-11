@@ -27,8 +27,9 @@ clear(block_t area[], block_t fill)
 void
 draw_blocks(
   color_t * textures[],  // List of pointers to textures.
-  block_t scene[],
-  block_t objects[],
+  block_t bg[],
+  block_t terrain[],
+  block_t fg[],
   uint32_t * pixels  // Output buffer
 ) {
 
@@ -37,13 +38,17 @@ draw_blocks(
   {
 
     block_t current;
-    if (objects[i] != EMPTY)
+    if (fg[i] != EMPTY)
     {
-      current = objects[i];
+      current = fg[i];
+    }
+    else if (terrain[i] != EMPTY)
+    {
+      current = terrain[i];
     }
     else
     {
-      current = scene[i];
+      current = bg[i];
     }
 
     int block_pos = ((i / WIDTH) * WIDTH_P * BLOCK_H) +  // Number of pixels up to the current row
@@ -56,6 +61,21 @@ draw_blocks(
              textures[current] + (dy * BLOCK_W),
              BLOCK_W * sizeof(uint32_t));
     }
+  }
+}
+
+
+void
+draw_object(object_t * object, uint32_t * pixels)
+{
+  pixels += (object->pos.y * WIDTH_P) + object->pos.x;
+
+  // Loop for every row of pixels in block height
+  for (int dy = 0; dy < object->height; dy++)
+  {
+    memcpy(pixels + (dy * WIDTH_P),
+           object->texture + (dy * object->width),
+           object->width * sizeof(uint32_t));
   }
 }
 
@@ -79,20 +99,14 @@ set_block(block_t scene[], block_t block, int x, int y)
 
 
 void
-place_objects(block_t objects[], coord_t player)
-{
-  clear(objects, EMPTY);
-  set_block(objects, PLAYER, player.x, player.y);
-}
-
-
-void
-setup_scene(block_t scene[])
+setup_scene(block_t bg[], block_t terrain[], block_t fg[])
 {
   int x, y;
   int ground = 2 * HEIGHT / 3;
 
-  clear(scene, SKY);
+  clear(bg, SKY);
+  clear(terrain, EMPTY);
+  clear(fg, EMPTY);
 
   for (x = 0; x < WIDTH; x++)
   {
@@ -109,66 +123,65 @@ setup_scene(block_t scene[])
       ground -= 1 - rand() % 3;
     }
 
-    set_block(scene, GRASS, x, ground);
-
+    set_block(terrain, GRASS, x, ground);
     for (y = ground + 1; y < HEIGHT; y++)
     {
-      set_block(scene, STONE, x, y);
+      set_block(terrain, STONE, x, y);
     }
   }
 }
 
 
 void
-move_player(coord_t * player, SDL_KeyboardEvent key, block_t blocks[])
+move_player(object_t * player, SDL_KeyboardEvent key, block_t blocks[])
 {
-  if (key.keysym.sym == SDLK_UP && player->y > 1 &&
-      blocks[xy(player->x, player->y - 1)] == SKY &&
-      blocks[xy(player->x, player->y - 2)] == SKY &&
-      blocks[xy(player->x, player->y + 1)] != SKY)
+  if (key.keysym.sym == SDLK_UP && player->pos.y > 1 &&
+      blocks[xy(player->pos.x, player->pos.y - 1)] == SKY &&
+      blocks[xy(player->pos.x, player->pos.y - 2)] == SKY &&
+      blocks[xy(player->pos.x, player->pos.y + 1)] != SKY)
   {
-    player->y -= 2;
+    player->pos.y -= 2;
   }
 
-  if (key.keysym.sym == SDLK_RIGHT && player->x < WIDTH-1)
+  if (key.keysym.sym == SDLK_RIGHT && player->pos.x < WIDTH-1)
   {
-    if (blocks[xy(player->x + 1, player->y)] == SKY)
+    if (blocks[xy(player->pos.x + 1, player->pos.y)] == SKY)
     {
-      player->x++;
+      player->pos.x++;
     }
-    else if (player->y >= 0 &&
-             blocks[xy(player->x, player->y - 1)] == SKY &&
-             blocks[xy(player->x + 1, player->y - 1)] == SKY)
+    else if (player->pos.y >= 0 &&
+             blocks[xy(player->pos.x, player->pos.y - 1)] == SKY &&
+             blocks[xy(player->pos.x + 1, player->pos.y - 1)] == SKY)
     {
-      player->x++;
-      player->y--;
+      player->pos.x++;
+      player->pos.y--;
     }
   }
 
-  if (key.keysym.sym == SDLK_LEFT && player->x > 0)
+  if (key.keysym.sym == SDLK_LEFT && player->pos.x > 0)
   {
-    if (blocks[xy(player->x - 1, player->y)] == SKY)
+    if (blocks[xy(player->pos.x - 1, player->pos.y)] == SKY)
     {
-      player->x--;
+      player->pos.x--;
 
     }
-    else if (player->y >= 0 &&
-             blocks[xy(player->x, player->y - 1)] == SKY &&
-             blocks[xy(player->x - 1, player->y - 1)] == SKY)
+    else if (player->pos.y >= 0 &&
+             blocks[xy(player->pos.x, player->pos.y - 1)] == SKY &&
+             blocks[xy(player->pos.x - 1, player->pos.y - 1)] == SKY)
     {
-      player->x--;
-      player->y--;
+      player->pos.x--;
+      player->pos.y--;
     }
   }
 }
 
 
 void
-gravity(coord_t * player, block_t blocks[])
+gravity(object_t * player, block_t blocks[])
 {
-  if (blocks[xy(player->x, player->y + 1)] == SKY)
+  if (blocks[xy(player->pos.x, player->pos.y + 1)] == SKY)
   {
-    player->y++;
+    player->pos.y++;
   }
 }
 
@@ -221,16 +234,20 @@ main(int argc, char * argv)
   SDL_Texture * texture = SDL_CreateTexture(renderer,
     SDL_PIXELFORMAT_ABGR8888, SDL_TEXTUREACCESS_STATIC, WIDTH_P, HEIGHT_P);
 
-  // The pixel values
+  // The pixel buffer
   uint32_t * pixels = (uint32_t *)malloc(WIDTH_P * HEIGHT_P * sizeof(uint32_t));
-  // The blocks array
-  block_t * scene = (block_t *)malloc(WIDTH * HEIGHT * sizeof(block_t));
-  // A second layer of blocks
-  block_t * objects = (block_t *)malloc(WIDTH * HEIGHT * sizeof(block_t));
 
-  coord_t player = {WIDTH / 2, 4};
+  // The blocks arrays
+  block_t * bg      = (block_t *)malloc(WIDTH * HEIGHT * sizeof(block_t));
+  block_t * terrain = (block_t *)malloc(WIDTH * HEIGHT * sizeof(block_t));
+  block_t * fg      = (block_t *)malloc(WIDTH * HEIGHT * sizeof(block_t));
+  setup_scene(bg, terrain, fg);
 
-  setup_scene(scene);
+  object_t player = {
+    textures[PLAYER],
+    8, 8,
+    {(WIDTH_P-8) / 2, 4}
+  };
 
   printf("Starting\n");
 
@@ -238,8 +255,8 @@ main(int argc, char * argv)
   SDL_Event event;
   while (!quit)
   {
-    place_objects(objects, player);
-    draw_blocks(textures, scene, objects, pixels);
+    draw_blocks(textures, bg, terrain, fg, pixels);
+    draw_object(&player, pixels);
 
     SDL_UpdateTexture(texture, NULL, pixels, WIDTH_P * sizeof(uint32_t));
     SDL_PollEvent(&event);
@@ -247,7 +264,7 @@ main(int argc, char * argv)
     switch (event.type)
     {
       case SDL_KEYDOWN:
-        move_player(&player, event.key, scene);
+        move_player(&player, event.key, terrain);
         break;
       case SDL_QUIT:
         quit = 1;
@@ -255,7 +272,7 @@ main(int argc, char * argv)
         break;
     }
 
-    gravity(&player, scene);
+    gravity(&player, terrain);
 
     SDL_RenderClear(renderer);
     SDL_RenderCopy(renderer, texture, NULL, NULL);
@@ -263,8 +280,9 @@ main(int argc, char * argv)
   }
 
   free(pixels);
-  free(scene);
-  free(objects);
+  free(bg);
+  free(terrain);
+  free(fg);
   free_textures(textures);
 
   SDL_DestroyTexture(texture);
