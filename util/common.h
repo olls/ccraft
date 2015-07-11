@@ -4,7 +4,8 @@
 #define BLOCK_H 8
 
 
-typedef enum block {
+typedef enum block
+{
   EMPTY,
   STONE,
   GRASS,
@@ -13,12 +14,13 @@ typedef enum block {
   NUM_BLOCKS
 } block_t;
 
-typedef struct texture {
-  enum block type;
+typedef struct texture
+{
   struct color * pixels;
 } texture_t;
 
-typedef struct coord {
+typedef struct coord
+{
   int x;
   int y;
 } coord_t;
