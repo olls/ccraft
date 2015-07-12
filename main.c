@@ -9,8 +9,8 @@
 
 #define WIDTH 75
 #define HEIGHT 50
-#define WIDTH_P BLOCK_W * WIDTH
-#define HEIGHT_P BLOCK_H * HEIGHT
+#define WIDTH_P (BLOCK_W * WIDTH)
+#define HEIGHT_P (BLOCK_H * HEIGHT)
 
 
 void
