@@ -263,7 +263,7 @@ main(int argc, char * argv)
 
   // For average FPS measurement
   int frame_count = 0;
-  uint64_t last_measure = 0;
+  uint64_t next_measure = 0;
 
   int quit = 0;
   SDL_Event event;
@@ -273,11 +273,12 @@ main(int argc, char * argv)
     uint64_t now = get_us(NULL);
 
     // Measure FPS
-    if (now - last_measure >= ONE_SEC) // If last measurement was more than 1 sec ago
+    if (now >= next_measure)
     {
-      printf("%f ms/frame\n", (double)ONE_SEC / (double)frame_count);
+      // If last measurement was more than 1 sec ago
+      next_measure = now + ONE_SEC;
+      printf("%f us/frame\n", (double)ONE_SEC / (double)frame_count);
       frame_count = 0;
-      last_measure = now;
     }
 
     // Render
