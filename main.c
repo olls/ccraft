@@ -135,6 +135,7 @@ setup_scene(block_t bg[], block_t terrain[], block_t fg[])
 void
 move_player(object_t * player, SDL_KeyboardEvent key, block_t blocks[])
 {
+  // Jump
   if (key.keysym.sym == SDLK_UP && player->pos.y > 1 &&
       blocks[xy(player->pos.x, player->pos.y - 1)] == SKY &&
       blocks[xy(player->pos.x, player->pos.y - 2)] == SKY &&
