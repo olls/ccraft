@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <time.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <SDL2/SDL.h>
 
 #include "util/common.h"
@@ -11,6 +12,11 @@
 #define HEIGHT 50
 #define WIDTH_P (BLOCK_W * WIDTH)
 #define HEIGHT_P (BLOCK_H * HEIGHT)
+
+#define MOV_PER_SEC 3
+#define FPS 30
+#define ONE_SEC 1000000
+#define FRAME_PERIOD_US (ONE_SEC / FPS)
 
 
 void
@@ -252,16 +258,46 @@ main(int argc, char * argv)
 
   printf("Starting\n");
 
+  // For FPS timing
+  uint64_t next_frame = get_us(NULL);
+
+  // For average FPS measurement
+  int frame_count = 0;
+  uint64_t last_measure = 0;
+
   int quit = 0;
   SDL_Event event;
+
   while (!quit)
   {
-    draw_blocks(textures, bg, terrain, fg, pixels);
-    draw_object(&player, pixels);
+    uint64_t now = get_us(NULL);
 
-    SDL_UpdateTexture(texture, NULL, pixels, WIDTH_P * sizeof(uint32_t));
+    // Measure FPS
+    if (now - last_measure >= ONE_SEC) // If last measurement was more than 1 sec ago
+    {
+      printf("%f ms/frame\n", (double)ONE_SEC / (double)frame_count);
+      frame_count = 0;
+      last_measure = now;
+    }
+
+    // Render
+    if (now >= next_frame)
+    {
+      next_frame = now + FRAME_PERIOD_US;
+      frame_count++;
+
+      draw_blocks(textures, bg, terrain, fg, pixels);
+      draw_object(&player, pixels);
+
+      SDL_UpdateTexture(texture, NULL, pixels, WIDTH_P * sizeof(uint32_t));
+
+      SDL_RenderClear(renderer);
+      SDL_RenderCopy(renderer, texture, NULL, NULL);
+      SDL_RenderPresent(renderer);
+    }
+
+    // Update player
     SDL_PollEvent(&event);
-
     switch (event.type)
     {
       case SDL_KEYDOWN:
@@ -274,10 +310,6 @@ main(int argc, char * argv)
     }
 
     gravity(&player, terrain);
-
-    SDL_RenderClear(renderer);
-    SDL_RenderCopy(renderer, texture, NULL, NULL);
-    SDL_RenderPresent(renderer);
   }
 
   free(pixels);

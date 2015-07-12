@@ -36,3 +36,6 @@ typedef struct object
 
 void
 error(char * mgs, ...);
+
+uint64_t
+get_us();
