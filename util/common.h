@@ -19,18 +19,18 @@ typedef enum block
 
 typedef uint32_t color_t;
 
-typedef struct coord
+typedef struct vec2
 {
   int x;
   int y;
-} coord_t;
+} vec2_t;
 
 typedef struct object
 {
   color_t * texture;
   int width;
   int height;
-  coord_t pos;
+  vec2_t pos;
 } object_t;
 
 

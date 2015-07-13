@@ -13,7 +13,9 @@
 #define WIDTH_P (BLOCK_W * WIDTH)
 #define HEIGHT_P (BLOCK_H * HEIGHT)
 
-#define MOV_PER_SEC 3
+#define MOV_PER_SEC 10
+#define GRAVITY 0.1f
+
 #define FPS 30
 #define ONE_SEC 1000000
 #define FRAME_PERIOD_US (ONE_SEC / FPS)
@@ -139,57 +141,46 @@ setup_scene(block_t bg[], block_t terrain[], block_t fg[])
 
 
 void
-move_player(object_t * player, SDL_KeyboardEvent key, block_t blocks[])
+get_input(vec2_t * delta, SDL_Event * event, uint64_t now, uint64_t * last_move)
 {
-  // Jump
-  if (key.keysym.sym == SDLK_UP && player->pos.y > 1 &&
-      blocks[xy(player->pos.x, player->pos.y - 1)] == SKY &&
-      blocks[xy(player->pos.x, player->pos.y - 2)] == SKY &&
-      blocks[xy(player->pos.x, player->pos.y + 1)] != SKY)
+  if (event->type == SDL_KEYDOWN)
   {
-    player->pos.y -= 2;
-  }
-
-  if (key.keysym.sym == SDLK_RIGHT && player->pos.x < WIDTH-1)
-  {
-    if (blocks[xy(player->pos.x + 1, player->pos.y)] == SKY)
-    {
-      player->pos.x++;
+    int dist = (double)(now - *last_move) * ((float)MOV_PER_SEC / (float)ONE_SEC);
+    if (dist < 1) {
+      return;
     }
-    else if (player->pos.y >= 0 &&
-             blocks[xy(player->pos.x, player->pos.y - 1)] == SKY &&
-             blocks[xy(player->pos.x + 1, player->pos.y - 1)] == SKY)
-    {
-      player->pos.x++;
-      player->pos.y--;
-    }
-  }
+    *last_move = now;
 
-  if (key.keysym.sym == SDLK_LEFT && player->pos.x > 0)
-  {
-    if (blocks[xy(player->pos.x - 1, player->pos.y)] == SKY)
-    {
-      player->pos.x--;
+    printf("Moving: %d\n", dist);
 
-    }
-    else if (player->pos.y >= 0 &&
-             blocks[xy(player->pos.x, player->pos.y - 1)] == SKY &&
-             blocks[xy(player->pos.x - 1, player->pos.y - 1)] == SKY)
+    if (event->key.keysym.sym == SDLK_UP)
     {
-      player->pos.x--;
-      player->pos.y--;
+      delta->y += dist;
+    }
+    if (event->key.keysym.sym == SDLK_LEFT)
+    {
+      delta->x -= dist;
+    }
+    if (event->key.keysym.sym == SDLK_RIGHT)
+    {
+      delta->x += dist;
     }
   }
 }
 
 
 void
-gravity(object_t * player, block_t blocks[])
+get_gravity(vec2_t * delta)
 {
-  if (blocks[xy(player->pos.x, player->pos.y + 1)] == SKY)
-  {
-    player->pos.y++;
-  }
+  delta->y += GRAVITY;
+}
+
+
+void
+update_player(object_t * player, vec2_t * delta, block_t * terrain)
+{
+  player->pos.x += delta->x;
+  player->pos.y += delta->y;
 }
 
 
@@ -259,18 +250,23 @@ main(int argc, char * argv)
   printf("Starting\n");
 
   // For FPS timing
-  uint64_t next_frame = get_us(NULL);
+  uint64_t next_frame = get_us();
 
   // For average FPS measurement
   int frame_count = 0;
   uint64_t next_measure = 0;
 
+  uint64_t last_move = get_us();
+
   int quit = 0;
   SDL_Event event;
+  vec2_t delta;
 
   while (!quit)
   {
-    uint64_t now = get_us(NULL);
+    uint64_t now = get_us();
+    delta.x = 0;
+    delta.y = 0;
 
     // Measure FPS
     if (now >= next_measure)
@@ -297,20 +293,21 @@ main(int argc, char * argv)
       SDL_RenderPresent(renderer);
     }
 
-    // Update player
+    // Get inputs
     SDL_PollEvent(&event);
-    switch (event.type)
+
+    get_input(&delta, &event, now, &last_move);
+
+    if (event.type == SDL_QUIT)
     {
-      case SDL_KEYDOWN:
-        move_player(&player, event.key, terrain);
-        break;
-      case SDL_QUIT:
-        quit = 1;
-        error("Quitting");
-        break;
+      quit = 1;
+      error("Quitting");
     }
 
-    gravity(&player, terrain);
+    // Update player
+    get_gravity(&delta);
+
+    update_player(&player, &delta, terrain);
   }
 
   free(pixels);
