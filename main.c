@@ -149,9 +149,6 @@ get_input(vec2_t * delta, SDL_Event * event, uint64_t now, uint64_t * last_move)
     if (dist < 1) {
       return;
     }
-    *last_move = now;
-
-    printf("Moving: %d\n", dist);
 
     if (event->key.keysym.sym == SDLK_UP)
     {
@@ -166,6 +163,9 @@ get_input(vec2_t * delta, SDL_Event * event, uint64_t now, uint64_t * last_move)
       delta->x += dist;
     }
   }
+
+  // Update time if we haven't pressed, or if we have moved
+  *last_move = now;
 }
 
 
