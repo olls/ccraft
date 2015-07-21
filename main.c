@@ -95,6 +95,13 @@ xy(int x, int y)
 }
 
 
+int
+v_xy(vec2_t pos)
+{
+  return (pos.y * WIDTH) + pos.x;
+}
+
+
 void
 set_block(block_t scene[], block_t block, int x, int y)
 {
